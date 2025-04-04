@@ -227,6 +227,15 @@
       </svg>
       <h1>Hello, {{ title }}</h1>
       <p>Congratulations! Your app is running. 🎉</p>
+      <p-heading>Welcome to Angular</p-heading>
+      <p-link-tile
+      [href]="'https://porsche.com'"
+      [label]="'Some label'"
+      [description]="'Some Description'"
+    >
+      <p-tag slot="header" [theme]="'dark'" [color]="'background-frosted'" [compact]="true">Some tag</p-tag>
+      <img src="assets/images/ptest.png" alt="Some image description" />
+    </p-link-tile>
     </div>
     <div class="divider" role="separator" aria-label="Divider"></div>
     <div class="right-side">

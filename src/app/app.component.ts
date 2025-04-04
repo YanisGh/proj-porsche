@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { PorscheDesignSystemModule } from '@porsche-design-system/components-angular';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, PorscheDesignSystemModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
