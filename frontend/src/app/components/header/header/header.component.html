@@ -1,0 +1,42 @@
+<div class="header">
+  <p-icon
+    name="menu-lines"
+    theme="dark"
+    [aria]="{'aria-label': 'Menu Lines icon'}"
+    (click)="onMenuClick()"
+  ></p-icon>
+
+  <p-wordmark href="https://porsche.com" theme="dark" [style]="{'height': '20px'}"></p-wordmark>
+
+  <p-icon
+    name="user"
+    theme="dark"
+    [aria]="{'aria-label': 'Login icon'}"
+    (click)="onLoginClick()"
+  ></p-icon>
+</div>
+
+<p-modal [open]="loginModalOpen" (dismiss)="onLoginModalDismiss()" [aria]="{'aria-label': 'Login'}">
+  <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+    <p-wordmark></p-wordmark>
+  </div>
+  <p-heading>Login to your account</p-heading>
+  <form (ngSubmit)="onLoginSubmit()" style="display: flex; flex-direction: column; gap: 20px; padding: 25px; min-width: 400px;">
+    <p-text-field-wrapper label="Email">
+      <input type="email" pText required />
+    </p-text-field-wrapper>
+    <p-text-field-wrapper label="Password">
+      <input type="password" pText required />
+    </p-text-field-wrapper>
+    <p-button-group slot="footer" style="width: 100%;">
+      <p-button type="submit" style="flex: 1;">Login</p-button>
+      <p-button type="button" variant="secondary" (click)="onLoginModalDismiss()" style="flex: 1;">Cancel</p-button>
+    </p-button-group>
+    <p-divider></p-divider>
+    <p-button type="submit" variant="secondary" style="width: 100%;">Create an account</p-button>
+  </form>
+</p-modal>
+
+<p-flyout [open]="open" [position]="'start'" [aria]="{'aria-label': 'Navigation Menu'}" (dismiss)="onDismiss()">
+  <p-heading>Models</p-heading>
+</p-flyout>
