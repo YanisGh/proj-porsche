@@ -6,14 +6,24 @@
     (click)="onMenuClick()"
   ></p-icon>
 
-  <p-wordmark theme="dark" [style]="{'height': '20px'}" (click)="returnHome()"></p-wordmark>
+  <p-wordmark theme="dark" [style]="{'height': '20px', 'cursor': 'pointer'}" (click)="navigateTo('/')"></p-wordmark>
 
-  <p-icon
-    name="user"
-    theme="dark"
-    [aria]="{'aria-label': 'Login icon'}"
-    (click)="onLoginClick()"
-  ></p-icon>
+  <ng-container>
+    <p-icon
+      *ngIf="!userConnected"
+      name="user"
+      theme="dark"
+      [aria]="{'aria-label': 'Login icon'}"
+      (click)="onLoginClick()"
+    >User</p-icon>
+    <p-icon
+      *ngIf="userConnected"
+      name="logout"
+      theme="dark"
+      [aria]="{'aria-label': 'Logout icon'}"
+      (click)="onLoginClick()"
+    >Logout</p-icon>
+  </ng-container>
 </div>
 
 <p-modal [open]="loginModalOpen" (dismiss)="onLoginModalDismiss()" [aria]="{'aria-label': 'Login'}">
@@ -31,10 +41,10 @@
   ></p-banner>
   <form (ngSubmit)="onLoginSubmit()" style="display: flex; flex-direction: column; gap: 20px; padding: 25px; min-width: 400px;">
     <p-text-field-wrapper label="Email">
-      <input type="email" pText required [(ngModel)]="email" name="email" />
+      <input type="email" pText required [(ngModel)]="email" name="email" (keydown.enter)="onLoginSubmit()" />
     </p-text-field-wrapper>
     <p-text-field-wrapper label="Password">
-      <input type="password" pText required [(ngModel)]="password" name="password" />
+      <input type="password" pText required [(ngModel)]="password" name="password" (keydown.enter)="onLoginSubmit()" />
     </p-text-field-wrapper>
     <p-button-group slot="footer" style="width: 100%;">
       <p-button type="submit" style="flex: 1;">Login</p-button>
@@ -47,12 +57,17 @@
 
 <p-flyout [open]="open" [position]="'start'" [aria]="{'aria-label': 'Navigation Menu'}" (dismiss)="onDismiss()">
   <div class="flyout-category">
-    <p-link icon="car" style="display: inline-block; width: 200px;" (click)="onModelsClick()">
+    <p-link icon="home" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('')">
+      Home
+    </p-link>
+  </div>
+  <div class="flyout-category">
+    <p-link icon="car" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('models')">
       Models
     </p-link>
   </div>
   <div class="flyout-category">
-    <p-link href="https://porsche.com" icon="garage" style="display: inline-block; width: 200px;">
+    <p-link icon="garage" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('garage')">
       My Garage
     </p-link>
   </div>  

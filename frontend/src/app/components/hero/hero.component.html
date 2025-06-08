@@ -1,4 +1,4 @@
-<div class="hero-container">
+<div [ngClass]="mainPage ? 'hero-container' : 'hero-container-not-main'">
   <img [src]="heroImage" class="img-hero" />
 
   <div class="hero-heading">
