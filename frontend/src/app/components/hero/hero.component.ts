@@ -1,11 +1,10 @@
 import { Component, Input } from '@angular/core';
 import { PorscheDesignSystemModule } from '@porsche-design-system/components-angular';
-import { HeaderComponent } from '../../header/header/header.component';
 
 @Component({
   selector: 'app-hero',
   standalone: true,
-  imports: [PorscheDesignSystemModule, HeaderComponent],
+  imports: [PorscheDesignSystemModule],
   templateUrl: './hero.component.html',
   styleUrls: ['./hero.component.scss']
 })

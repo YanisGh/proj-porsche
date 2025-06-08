@@ -6,7 +6,7 @@
     (click)="onMenuClick()"
   ></p-icon>
 
-  <p-wordmark href="https://porsche.com" theme="dark" [style]="{'height': '20px'}"></p-wordmark>
+  <p-wordmark theme="dark" [style]="{'height': '20px'}" (click)="returnHome()"></p-wordmark>
 
   <p-icon
     name="user"
@@ -20,13 +20,21 @@
   <div style="display: flex; justify-content: center; margin-bottom: 30px;">
     <p-wordmark></p-wordmark>
   </div>
-  <p-heading>Login to your account</p-heading>
+  <p-banner
+    [open]="bannerOpen"
+    [heading]="loginSuccess ? 'Login Successful' : 'Login Failed'"
+    [headingTag]="'h3'"
+    [description]="loginSuccess ? 'Welcome, you have successfully logged in.' : 'Login failed. Please try again.'"
+    [state]="loginSuccess ? 'info' : 'error'"
+    [dismissButton]="!loginSuccess"
+    (dismiss)="onBannerDismiss()"
+  ></p-banner>
   <form (ngSubmit)="onLoginSubmit()" style="display: flex; flex-direction: column; gap: 20px; padding: 25px; min-width: 400px;">
     <p-text-field-wrapper label="Email">
-      <input type="email" pText required />
+      <input type="email" pText required [(ngModel)]="email" name="email" />
     </p-text-field-wrapper>
     <p-text-field-wrapper label="Password">
-      <input type="password" pText required />
+      <input type="password" pText required [(ngModel)]="password" name="password" />
     </p-text-field-wrapper>
     <p-button-group slot="footer" style="width: 100%;">
       <p-button type="submit" style="flex: 1;">Login</p-button>
@@ -38,5 +46,14 @@
 </p-modal>
 
 <p-flyout [open]="open" [position]="'start'" [aria]="{'aria-label': 'Navigation Menu'}" (dismiss)="onDismiss()">
-  <p-heading>Models</p-heading>
+  <div class="flyout-category">
+    <p-link icon="car" style="display: inline-block; width: 200px;" (click)="onModelsClick()">
+      Models
+    </p-link>
+  </div>
+  <div class="flyout-category">
+    <p-link href="https://porsche.com" icon="garage" style="display: inline-block; width: 200px;">
+      My Garage
+    </p-link>
+  </div>  
 </p-flyout>
