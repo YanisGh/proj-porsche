@@ -1,0 +1,18 @@
+<div class="signature-container">
+    <p-model-signature [safeZone]="false" class="signature">
+        <img src="assets/images/911-hero.jpg" alt="911" />
+    </p-model-signature>
+</div>
+
+@if (loading) {
+  <div>Loading submodels...</div>
+} @else if (error) {
+  <div>{{ error }}</div>
+} @else {
+  <h2>Variants for {{ baseModel }}</h2>
+  <ul>
+    @for (sub of submodels; track sub) {
+      <li>{{ sub.model }}</li>
+    }
+  </ul>
+}

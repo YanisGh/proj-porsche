@@ -3,4 +3,48 @@
   [heading]="'Our Models'"
   [mainPage]="false"
 ></app-hero>
-<p>models works!</p>
+
+@if (loading) {
+  <div class="skeleton skeleton--light skeleton--box"></div>
+} @else if (error) {
+  <div>{{ error }}</div>
+} @else {
+  <div class="divider">
+    <p-divider></p-divider>
+  </div>
+  <div class="heading-center">
+    <p-heading>
+      Discover Porsche's historic lineup.
+    </p-heading>
+  </div>
+  <div class="content">
+    <div class="content-tiles">
+      @for (base of baseModels; track base) {
+        <!-- J'aurais pu use link tile model signature, mais 2 p-link etaient required,
+         et je n'ai pas besoin de 2 link -->
+        <p-link-tile class="tile"
+        label="Select model" 
+        cursor="pointer"
+        background="dark"
+        [gradient]="false"
+        size="large"
+        aspectRatio="4/3"
+        target="_blank"
+        (click)="onBaseModelClick(base)">
+          <p-tag slot="header" color="background-frosted" [compact]="false">
+            @if (isValidModel(base.toLowerCase())) {
+              <p-model-signature
+                theme="dark"
+                [safeZone]="false"
+                [model]="getValidModelOrFallback(base)"
+              ></p-model-signature>
+            } @else {
+              <p-text weight="bold" theme="dark" size="medium">{{ base }}</p-text>
+            }
+          </p-tag>
+          <img [src]="getModelImage(base)" [alt]="base + ' image'" />
+        </p-link-tile>
+      }
+    </div>
+  </div>
+}

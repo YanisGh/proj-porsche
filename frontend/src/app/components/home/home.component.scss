@@ -56,30 +56,5 @@
     margin-right: 40px;
 }
 
-.content{
-    display: flex;
-    width: 100%;
-}
 
-.content-tiles {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: center;
-    margin-bottom: 3%;
-  }
-  
-  .tile {
-    width: 25%;
-  }
-  
-  .tile img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-  }
-
-  .divider{
-    margin: 3%;
-  }
   

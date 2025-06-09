@@ -1,5 +1,4 @@
-/* You can add global styles to this file, and also import other style files */
-
+@use '@porsche-design-system/components-angular/styles' as *;
 * {
   margin: 0;
   padding: 0;
@@ -17,3 +16,59 @@ html, body {
 body {
   position: relative;
 }
+
+.skeleton {
+    &--light {
+      @include pds-skeleton('light');
+    }
+    &--dark {
+      @include pds-skeleton('dark');
+    }
+
+    &--box {
+      height: 200px;
+      width: 500px;
+    }
+
+    &--text {
+      height: $pds-font-line-height;
+      width: 100px;
+
+      &--small {
+        font-size: $pds-font-size-text-small;
+      }
+      &--medium {
+        font-size: $pds-font-size-text-medium;
+      }
+      &--large {
+        font-size: $pds-font-size-text-large;
+      }
+    }
+  }
+
+  .content{
+    display: flex;
+    width: 100%;
+}
+
+.content-tiles {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 3%;
+  }
+  
+  .tile {
+    width: 25%;
+  }
+  
+  .tile img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .divider{
+    margin: 3%;
+  }
