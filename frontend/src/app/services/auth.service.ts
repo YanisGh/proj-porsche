@@ -36,28 +36,4 @@ export class AuthService {
   logout() {
     this.currentUser = null;
   }
-  getGarageCount(): Observable<any> {
-    if (!this.currentUser?.email) {
-      throw new Error('No user logged in');
-    }
-    return this.http.post(`${this.apiUrl}/garage/count`, { email: this.currentUser.email });
-  }
-  addCarToGarage(carData: any): Observable<any> {
-    if (!this.currentUser?.email) {
-      throw new Error('No user logged in');
-    }
-    return this.http.post(`${this.apiUrl}/garage/add`, { 
-      email: this.currentUser.email, 
-      carData 
-    });
-  }
-
-  getGarageCars(): Observable<any> {
-    if (!this.currentUser?.email) {
-      throw new Error('No user logged in');
-    }
-    return this.http.post(`${this.apiUrl}/garage/cars`, { 
-      email: this.currentUser.email 
-    });
-  }
 }

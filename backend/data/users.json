@@ -45,6 +45,19 @@
         "vin": "qfdssqdf",
         "notes": "qfdqfd",
         "addedAt": "2025-06-10T19:14:44.768Z"
+      },
+      {
+        "id": 1749595534152,
+        "baseModel": "918 Spyder",
+        "model": "918",
+        "year": 2013,
+        "mileage": 35431,
+        "acquisitionYear": 2020,
+        "condition": "excellent",
+        "color": "Grey",
+        "vin": "dqfdsfqdsfqsdfqsdfqsfdqsdf",
+        "notes": "Fun car",
+        "addedAt": "2025-06-10T22:45:34.152Z"
       }
     ]
   }

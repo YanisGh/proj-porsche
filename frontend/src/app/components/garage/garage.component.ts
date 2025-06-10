@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HeroComponent } from '../hero/hero.component';
 import { AuthService } from '../../services/auth.service';
+import { GarageService } from '../../services/garage.service';
+import { ModelsService } from '../../services/models.service';
 import { CommonModule } from '@angular/common';
 import { PorscheDesignSystemModule } from '@porsche-design-system/components-angular';
 import { Router } from '@angular/router';
@@ -24,15 +26,17 @@ import {
 })
 export class GarageComponent implements OnInit {
   garageCount: number = 0;
+  cars: any[] = [];
   loading: boolean = true;
   error: string = '';
   addCarModalOpen: boolean = false;
-
-  // Stepper state
-  currentStep: number = 1;
-
-  // Current year for validation
+  carDetailFlyoutOpen: boolean = false;
+  selectedCar: any = null;
+  currentStep: number = 1; // Current year for validation
   currentYear: number = new Date().getFullYear();
+
+  // Base models from API
+  baseModels: string[] = [];
 
   // Forms
   step1Form: FormGroup;
@@ -40,10 +44,12 @@ export class GarageComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private modelsService: ModelsService,
+    private garageService: GarageService,
     private router: Router,
     private fb: FormBuilder
   ) {
-    // Initialize Step 1 Form - Basic Car Info
+    // Initialize Step 1
     this.step1Form = this.fb.group({
       baseModel: ['', [Validators.required]],
       model: ['', [Validators.required]],
@@ -57,7 +63,7 @@ export class GarageComponent implements OnInit {
       ],
     });
 
-    // Initialize Step 2 Form - Detailed Car Info
+    // Initialize Step 2
     this.step2Form = this.fb.group({
       mileage: ['', [Validators.required, Validators.min(0)]],
       acquisitionYear: [
@@ -74,9 +80,22 @@ export class GarageComponent implements OnInit {
       notes: [''],
     });
   }
-
   ngOnInit() {
-    this.loadGarageCount();
+    this.loadGarage();
+    this.loadBaseModels();
+  }
+
+  private loadBaseModels() {
+    this.modelsService.getBaseModels().subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.baseModels = response.values;
+        }
+      },
+      error: (error) => {
+        console.error('Error loading base models:', error);
+      },
+    });
   }
   addCarModal() {
     this.addCarModalOpen = true;
@@ -172,6 +191,48 @@ export class GarageComponent implements OnInit {
         return condition;
     }
   }
+
+  getCarImage(baseModel: string): string {
+    const imageMap: { [key: string]: string } = {
+      '911': 'assets/images/cars/911.jpg',
+      '718': 'assets/images/cars/718.jpg',
+      Cayenne: 'assets/images/cars/cayenne.jpg',
+      Macan: 'assets/images/cars/macan.jpg',
+      Panamera: 'assets/images/cars/panamera.jpg',
+      Taycan: 'assets/images/cars/taycan.jpg',
+      '918': 'assets/images/cars/918spyder.jpg',
+      '924': 'assets/images/cars/924.jpg',
+      '928': 'assets/images/cars/928.jpg',
+      '944': 'assets/images/cars/944.jpg',
+      '968': 'assets/images/cars/968.jpg',
+      'Carrera GT': 'assets/images/cars/carreragt.jpg',
+    };
+
+    return imageMap[baseModel] || 'assets/images/cars/911.jpg'; // Default to 911 image
+  }
+
+  // Car detail flyout methods
+  onCarDetailClick(car: any) {
+    this.selectedCar = car;
+    this.carDetailFlyoutOpen = true;
+  }
+
+  onCarDetailDismiss() {
+    this.carDetailFlyoutOpen = false;
+    this.selectedCar = null;
+  }
+
+  // Format date for display
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
   // Submit the complete form
   onSubmitCar() {
     if (this.step1Form.valid && this.step2Form.valid) {
@@ -180,13 +241,12 @@ export class GarageComponent implements OnInit {
         ...this.step2Form.value,
       };
 
-      console.log('Car data to save:', carData);
-
-      // Call backend API to save car to user's garage
-      this.authService.addCarToGarage(carData).subscribe({
+      console.log('Car data to save:', carData); // Call backend API to save car to user's garage
+      this.garageService.addCarToGarage(carData).subscribe({
         next: (response) => {
           console.log('Car added successfully:', response);
-          this.garageCount = response.garageCount; // Update garage count
+          // Refresh the garage data to get updated cars list
+          this.loadGarage();
           this.onAddCarModalDismiss();
           // TODO: Show success message or banner
         },
@@ -199,12 +259,12 @@ export class GarageComponent implements OnInit {
       this.step2Form.markAllAsTouched();
     }
   }
-
-  private loadGarageCount() {
+  private loadGarage() {
     try {
-      this.authService.getGarageCount().subscribe({
+      this.garageService.getGarageCars().subscribe({
         next: (response) => {
           this.garageCount = response.count;
+          this.cars = response.cars || [];
           this.loading = false;
         },
         error: (error) => {
