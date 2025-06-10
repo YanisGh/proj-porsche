@@ -28,6 +28,7 @@ export class ModelsComponent implements OnInit {
   baseModels: string[] = [];
   loading = true;
   error = '';
+  errorBannerOpen = true;
 
   // Limit list to known valid model keys
   validModels: PorscheModel[] = [
@@ -36,32 +37,36 @@ export class ModelsComponent implements OnInit {
     'taycan', 'turbo-s', 'turbo'
   ];
 
+  excludedModels: string[] = [
+    "Turbo 2 911 Gt2", "Turbo", "Carrera 2 911 GT3", "Turbo GT2", "Turbo 2 911 GT2",
+    "Turbo 4 911 S", "Turbo Kit", "Carrera 2 Coupe Kit", "Turbo 4 911 Kit",
+    "New 911 Carrera", "Turbo 4 911 Turbo Cab S", "Carrera 4 S Targa",
+    "Carrera 4 Targa", "Turbo 4 911", "Turbo 4 911 Cab", "Carrera 4",
+    "Carrera 2 Cabriolet Kit", "Carrera 4 Cabriolet Kit", "Carrera 4 S Cabriolet Kit",
+    "Turbo 4 911 Cab Kit", "Carrera 4 S Kit", "Turbo 4 911 Turbo",
+    "Carrera 4 S Coupe", "Carrera 2 S Coupe", "Carrera 4 S Cabriolet",
+    "Carrera 4 Coupe", "Carrera 4 S", "Carrera 2 Coupe", "Targa", "Boxster", "Cayman",
+    "Carrera 2 S Cabriolet", "Carrera 4 Cabriolet", "Carrera 2 Cabriolet", "Carrera",
+  ];
+
   constructor(private modelsService: ModelsService, private router: Router) {}
 
-  ngOnInit() {
-    const excludedModels = [
-      "Turbo 2 911 Gt2", "Turbo", "Carrera 2 911 GT3", "Turbo GT2", "Turbo 2 911 GT2",
-      "Turbo 4 911 S", "Turbo Kit", "Carrera 2 Coupe Kit", "Turbo 4 911 Kit",
-      "New 911 Carrera", "Turbo 4 911 Turbo Cab S", "Carrera 4 S Targa",
-      "Carrera 4 Targa", "Turbo 4 911", "Turbo 4 911 Cab", "Carrera 4",
-      "Carrera 2 Cabriolet Kit", "Carrera 4 Cabriolet Kit", "Carrera 4 S Cabriolet Kit",
-      "Turbo 4 911 Cab Kit", "Carrera 4 S Kit", "Turbo 4 911 Turbo",
-      "Carrera 4 S Coupe", "Carrera 2 S Coupe", "Carrera 4 S Cabriolet",
-      "Carrera 4 Coupe", "Carrera 4 S", "Carrera 2 Coupe", "Targa", "Boxster", "Cayman",
-      "Carrera 2 S Cabriolet", "Carrera 4 Cabriolet", "Carrera 2 Cabriolet", "Carrera",
-    ];
-
+  private fetchBaseModels() {
     this.modelsService.getBaseModels().subscribe({
       next: (res) => {
-        this.baseModels = res.values.filter(base => !excludedModels.includes(base));
-        console.log('Base models loaded:', this.baseModels);
+        this.baseModels = res.values.filter(base => !this.excludedModels.includes(base));
         this.loading = false;
       },
-      error: () => {
-        this.error = 'Failed to load base models';
+      error: (err) => {
+        this.error = err.error?.message || 'Sorry, we could not load the car models.';
+        this.errorBannerOpen = true;
         this.loading = false;
       }
     });
+  }
+
+  ngOnInit() {
+    this.fetchBaseModels();
   }
 
   isValidModel(model: string): model is PorscheModel {
@@ -93,6 +98,13 @@ export class ModelsComponent implements OnInit {
 
   onBaseModelClick(base: string) {
     this.router.navigate(['/submodels', base]);
+  }
+
+  reloadBaseModels() {
+    this.loading = true;
+    this.error = '';
+    this.errorBannerOpen = false;
+    this.fetchBaseModels();
   }
 
 }

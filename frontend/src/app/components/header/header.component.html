@@ -2,73 +2,283 @@
   <p-icon
     name="menu-lines"
     theme="dark"
-    [aria]="{'aria-label': 'Menu Lines icon'}"
+    [aria]="{ 'aria-label': 'Menu Lines icon' }"
     (click)="onMenuClick()"
   ></p-icon>
 
-  <p-wordmark theme="dark" [style]="{'height': '20px', 'cursor': 'pointer'}" (click)="navigateTo('/')"></p-wordmark>
+  <p-wordmark
+    theme="dark"
+    [style]="{ height: '20px', cursor: 'pointer' }"
+    (click)="navigateTo('/')"
+  ></p-wordmark>
 
-  <ng-container>
+  @if (!userConnected) {
     <p-icon
-      *ngIf="!userConnected"
       name="user"
       theme="dark"
-      [aria]="{'aria-label': 'Login icon'}"
+      [aria]="{ 'aria-label': 'Login icon' }"
       (click)="onLoginClick()"
-    >User</p-icon>
+      >User</p-icon
+    >
+  }
+  @if (userConnected) {
     <p-icon
-      *ngIf="userConnected"
       name="logout"
       theme="dark"
-      [aria]="{'aria-label': 'Logout icon'}"
-      (click)="onLoginClick()"
-    >Logout</p-icon>
-  </ng-container>
+      [aria]="{ 'aria-label': 'Logout icon' }"
+      (click)="onLogout()"
+      >Logout</p-icon
+    >
+  }
 </div>
 
-<p-modal [open]="loginModalOpen" (dismiss)="onLoginModalDismiss()" [aria]="{'aria-label': 'Login'}">
-  <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+<p-modal
+  [open]="loginModalOpen"
+  (dismiss)="onLoginModalDismiss()"
+  [aria]="{ 'aria-label': isSignupMode ? 'Sign Up' : 'Login' }"
+>
+  <div style="display: flex; justify-content: center; margin-bottom: 30px">
     <p-wordmark></p-wordmark>
   </div>
   <p-banner
     [open]="bannerOpen"
-    [heading]="loginSuccess ? 'Login Successful' : 'Login Failed'"
+    [heading]="
+      loginSuccess
+        ? isSignupMode
+          ? 'Account Created Successfully'
+          : 'Login Successful'
+        : isSignupMode
+        ? 'Sign Up Failed'
+        : 'Login Failed'
+    "
     [headingTag]="'h3'"
-    [description]="loginSuccess ? 'Welcome, you have successfully logged in.' : 'Login failed. Please try again.'"
+    [description]="
+      loginSuccess
+        ? isSignupMode
+          ? 'Your account has been created successfully. Welcome!'
+          : 'Welcome, you have successfully logged in.'
+        : isSignupMode
+        ? 'Account creation failed. Please try again.'
+        : 'Login failed. Please try again.'
+    "
     [state]="loginSuccess ? 'info' : 'error'"
     [dismissButton]="!loginSuccess"
     (dismiss)="onBannerDismiss()"
   ></p-banner>
-  <form (ngSubmit)="onLoginSubmit()" style="display: flex; flex-direction: column; gap: 20px; padding: 25px; min-width: 400px;">
-    <p-text-field-wrapper label="Email">
-      <input type="email" pText required [(ngModel)]="email" name="email" (keydown.enter)="onLoginSubmit()" />
-    </p-text-field-wrapper>
-    <p-text-field-wrapper label="Password">
-      <input type="password" pText required [(ngModel)]="password" name="password" (keydown.enter)="onLoginSubmit()" />
-    </p-text-field-wrapper>
-    <p-button-group slot="footer" style="width: 100%;">
-      <p-button type="submit" style="flex: 1;">Login</p-button>
-      <p-button type="button" variant="secondary" (click)="onLoginModalDismiss()" style="flex: 1;">Cancel</p-button>
-    </p-button-group>
-    <p-divider></p-divider>
-    <p-button type="submit" variant="secondary" style="width: 100%;">Create an account</p-button>
-  </form>
+
+  <!-- Login Form -->
+  @if (!isSignupMode) {
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onLoginSubmit()"
+      style="
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 25px;
+        min-width: 400px;
+      "
+    >
+      <p-text-field-wrapper
+        label="Email"
+        [state]="hasFieldError(loginForm, 'email') ? 'error' : 'none'"
+        [message]="getFieldError(loginForm, 'email')"
+      >
+        <input
+          type="email"
+          pText
+          formControlName="email"
+          (keydown.enter)="onLoginSubmit()"
+        />
+      </p-text-field-wrapper>
+      <p-text-field-wrapper
+        label="Password"
+        [state]="hasFieldError(loginForm, 'password') ? 'error' : 'none'"
+        [message]="getFieldError(loginForm, 'password')"
+      >
+        <input
+          type="password"
+          pText
+          formControlName="password"
+          (keydown.enter)="onLoginSubmit()"
+        />
+      </p-text-field-wrapper>
+      <p-button-group slot="footer" style="width: 100%">
+        <p-button type="submit" [disabled]="loginForm.invalid" style="flex: 1"
+          >Login</p-button
+        >
+        <p-button
+          type="button"
+          variant="secondary"
+          (click)="onLoginModalDismiss()"
+          style="flex: 1"
+          >Cancel</p-button
+        >
+      </p-button-group>
+      <p-divider></p-divider>
+      <p-button
+        type="button"
+        variant="secondary"
+        (click)="switchToSignup()"
+        style="width: 100%"
+        >Create an account</p-button
+      >
+    </form>
+  }
+
+  <!-- Signup Form -->
+  @if (isSignupMode) {
+    <form
+        [formGroup]="signupForm"
+        (ngSubmit)="onSignupSubmit()"
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          padding: 25px;
+          min-width: 400px;
+        "
+      >
+      <div style="display: flex; gap: 15px">
+        <p-text-field-wrapper
+          label="First Name"
+          [state]="hasFieldError(signupForm, 'firstName') ? 'error' : 'none'"
+          [message]="getFieldError(signupForm, 'firstName')"
+          style="flex: 1"
+        >
+          <input type="text" pText formControlName="firstName" />
+        </p-text-field-wrapper>
+        <p-text-field-wrapper
+          label="Last Name"
+          [state]="hasFieldError(signupForm, 'lastName') ? 'error' : 'none'"
+          [message]="getFieldError(signupForm, 'lastName')"
+          style="flex: 1"
+        >
+          <input type="text" pText formControlName="lastName" />
+        </p-text-field-wrapper>
+      </div>
+      <p-text-field-wrapper
+        label="Email"
+        [state]="hasFieldError(signupForm, 'email') ? 'error' : 'none'"
+        [message]="getFieldError(signupForm, 'email')"
+      >
+        <input type="email" pText formControlName="email" />
+      </p-text-field-wrapper>
+      <p-text-field-wrapper
+        label="Password"
+        [state]="hasFieldError(signupForm, 'password') ? 'error' : 'none'"
+        [message]="getFieldError(signupForm, 'password')"
+      >
+        <input type="password" pText formControlName="password" />
+      </p-text-field-wrapper>
+      <p-text-field-wrapper
+        label="Confirm Password"
+        [state]="hasFieldError(signupForm, 'confirmPassword') ? 'error' : 'none'"
+        [message]="getFieldError(signupForm, 'confirmPassword')"
+      >
+        <input type="password" pText formControlName="confirmPassword" />
+      </p-text-field-wrapper>
+      <p-button-group slot="footer" style="width: 100%">
+        <p-button type="submit" [disabled]="signupForm.invalid" style="flex: 1"
+          >Create Account</p-button
+        >
+        <p-button
+          type="button"
+          variant="secondary"
+          (click)="onLoginModalDismiss()"
+          style="flex: 1"
+          >Cancel</p-button
+        >
+      </p-button-group>
+      <p-divider></p-divider>
+      <p-button
+        type="button"
+        variant="secondary"
+        (click)="switchToLogin()"
+        style="width: 100%"
+        >Already have an account? Sign in</p-button
+      >
+    </form>
+  }
 </p-modal>
 
-<p-flyout [open]="open" [position]="'start'" [aria]="{'aria-label': 'Navigation Menu'}" (dismiss)="onDismiss()">
+<!-- Logout Confirmation Modal -->
+<p-modal
+  [open]="logoutModalOpen"
+  (dismiss)="onLogoutModalDismiss()"
+  [aria]="{ 'aria-label': 'Logout Confirmation' }"
+>
+  <div style="display: flex; justify-content: center; margin-bottom: 30px">
+    <p-wordmark></p-wordmark>
+  </div>
+  
+  <div style="padding: 25px; min-width: 400px; text-align: center;">
+    <p-icon
+      name="logout"
+      size="large"
+      theme="light"
+      style="margin-bottom: 1.5rem; opacity: 0.7"
+    ></p-icon>
+    
+    <p-heading size="medium" style="margin-bottom: 1rem;">
+      Confirm Logout
+    </p-heading>
+    
+    <p-text size="medium" style="color: #666; margin-bottom: 2rem; display: block;">
+      Are you sure you want to log out? You will be redirected to the home page.
+    </p-text>
+
+    <p-button-group style="width: 100%;">
+      <p-button 
+        type="button" 
+        variant="secondary" 
+        (click)="onLogoutModalDismiss()" 
+        style="flex: 1;">
+        Cancel
+      </p-button>
+      <p-button 
+        type="button" 
+        (click)="confirmLogout()" 
+        style="flex: 1;">
+        Logout
+      </p-button>
+    </p-button-group>
+  </div>
+</p-modal>
+
+<p-flyout
+  [open]="open"
+  [position]="'start'"
+  [aria]="{ 'aria-label': 'Navigation Menu' }"
+  (dismiss)="onDismiss()"
+>
   <div class="flyout-category">
-    <p-link icon="home" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('')">
+    <p-link
+      icon="home"
+      style="display: inline-block; width: 200px; cursor: pointer"
+      (click)="navigateTo('')"
+    >
       Home
     </p-link>
   </div>
   <div class="flyout-category">
-    <p-link icon="car" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('models')">
+    <p-link
+      icon="car"
+      style="display: inline-block; width: 200px; cursor: pointer"
+      (click)="navigateTo('models')"
+    >
       Models
     </p-link>
   </div>
+  @if (userConnected) {
   <div class="flyout-category">
-    <p-link icon="garage" style="display: inline-block; width: 200px; cursor: pointer;" (click)="navigateTo('garage')">
+    <p-link
+      icon="garage"
+      style="display: inline-block; width: 200px; cursor: pointer"
+      (click)="navigateTo('garage')"
+    >
       My Garage
     </p-link>
-  </div>  
+  </div>
+  }
 </p-flyout>

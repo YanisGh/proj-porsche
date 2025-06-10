@@ -1,12 +1,225 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { HeroComponent } from '../hero/hero.component';
+import { AuthService } from '../../services/auth.service';
+import { CommonModule } from '@angular/common';
+import { PorscheDesignSystemModule } from '@porsche-design-system/components-angular';
+import { Router } from '@angular/router';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule,
+} from '@angular/forms';
 
 @Component({
   selector: 'app-garage',
-  imports: [HeroComponent],
+  imports: [
+    HeroComponent,
+    CommonModule,
+    PorscheDesignSystemModule,
+    ReactiveFormsModule,
+  ],
   templateUrl: './garage.component.html',
-  styleUrl: './garage.component.scss'
+  styleUrl: './garage.component.scss',
 })
-export class GarageComponent {
+export class GarageComponent implements OnInit {
+  garageCount: number = 0;
+  loading: boolean = true;
+  error: string = '';
+  addCarModalOpen: boolean = false;
 
+  // Stepper state
+  currentStep: number = 1;
+
+  // Current year for validation
+  currentYear: number = new Date().getFullYear();
+
+  // Forms
+  step1Form: FormGroup;
+  step2Form: FormGroup;
+
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+    private fb: FormBuilder
+  ) {
+    // Initialize Step 1 Form - Basic Car Info
+    this.step1Form = this.fb.group({
+      baseModel: ['', [Validators.required]],
+      model: ['', [Validators.required]],
+      year: [
+        '',
+        [
+          Validators.required,
+          Validators.min(1948),
+          Validators.max(this.currentYear),
+        ],
+      ],
+    });
+
+    // Initialize Step 2 Form - Detailed Car Info
+    this.step2Form = this.fb.group({
+      mileage: ['', [Validators.required, Validators.min(0)]],
+      acquisitionYear: [
+        '',
+        [
+          Validators.required,
+          Validators.min(1948),
+          Validators.max(this.currentYear),
+        ],
+      ],
+      condition: ['', [Validators.required]],
+      color: ['', [Validators.required]],
+      vin: [''],
+      notes: [''],
+    });
+  }
+
+  ngOnInit() {
+    this.loadGarageCount();
+  }
+  addCarModal() {
+    this.addCarModalOpen = true;
+    this.currentStep = 1; // Reset to step 1 when opening modal
+  }
+
+  onAddCarModalDismiss() {
+    this.addCarModalOpen = false;
+    this.currentStep = 1; // Reset du stepper vu que la modal a été fermée
+    this.step1Form.reset();
+    this.step2Form.reset();
+  }
+  nextStep() {
+    if (this.currentStep === 1 && this.step1Form.valid) {
+      this.currentStep = 2;
+    } else if (this.currentStep === 2 && this.step2Form.valid) {
+      this.currentStep = 3;
+    } else if (this.currentStep === 1) {
+      this.step1Form.markAllAsTouched();
+    } else if (this.currentStep === 2) {
+      this.step2Form.markAllAsTouched();
+    }
+  }
+
+  previousStep() {
+    if (this.currentStep > 1) {
+      this.currentStep--;
+    }
+  }
+
+  getStepState(
+    stepNumber: number
+  ): 'complete' | 'current' | 'warning' | undefined {
+    if (stepNumber < this.currentStep) {
+      return 'complete';
+    } else if (stepNumber === this.currentStep) {
+      return 'current';
+    }
+    return undefined;
+  }
+
+  // Form validation helpers
+  hasFieldError(form: FormGroup, fieldName: string): boolean {
+    const field = form.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  getFieldError(form: FormGroup, fieldName: string): string {
+    const field = form.get(fieldName);
+    if (field && field.invalid && (field.dirty || field.touched)) {
+      if (field.errors?.['required']) {
+        return `${this.capitalizeFirst(fieldName)} is required`;
+      }
+      if (field.errors?.['min']) {
+        return `${this.capitalizeFirst(fieldName)} must be at least ${
+          field.errors['min'].min
+        }`;
+      }
+      if (field.errors?.['max']) {
+        return `${this.capitalizeFirst(fieldName)} cannot exceed ${
+          field.errors['max'].max
+        }`;
+      }
+    }
+    return '';
+  }
+  private capitalizeFirst(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  // Get combined form data for review
+  getReviewData() {
+    return {
+      ...this.step1Form.value,
+      ...this.step2Form.value,
+    };
+  }
+
+  // Get formatted condition display
+  getFormattedCondition(condition: string): string {
+    switch (condition) {
+      case 'excellent':
+        return 'Excellent';
+      case 'very-good':
+        return 'Very Good';
+      case 'good':
+        return 'Good';
+      case 'fair':
+        return 'Fair';
+      case 'needs-work':
+        return 'Needs Work';
+      default:
+        return condition;
+    }
+  }
+  // Submit the complete form
+  onSubmitCar() {
+    if (this.step1Form.valid && this.step2Form.valid) {
+      const carData = {
+        ...this.step1Form.value,
+        ...this.step2Form.value,
+      };
+
+      console.log('Car data to save:', carData);
+
+      // Call backend API to save car to user's garage
+      this.authService.addCarToGarage(carData).subscribe({
+        next: (response) => {
+          console.log('Car added successfully:', response);
+          this.garageCount = response.garageCount; // Update garage count
+          this.onAddCarModalDismiss();
+          // TODO: Show success message or banner
+        },
+        error: (error) => {
+          console.error('Failed to add car:', error);
+          // TODO: Show error message
+        },
+      });
+    } else {
+      this.step2Form.markAllAsTouched();
+    }
+  }
+
+  private loadGarageCount() {
+    try {
+      this.authService.getGarageCount().subscribe({
+        next: (response) => {
+          this.garageCount = response.count;
+          this.loading = false;
+        },
+        error: (error) => {
+          console.error('Error loading garage count:', error);
+          this.error = 'Failed to load garage information';
+          this.loading = false;
+        },
+      });
+    } catch (error) {
+      console.error('No user logged in:', error);
+      this.error = 'Please log in to view your garage';
+      this.loading = false;
+      setTimeout(() => {
+        this.router.navigate(['/']);
+      }, 5000);
+    }
+  }
 }

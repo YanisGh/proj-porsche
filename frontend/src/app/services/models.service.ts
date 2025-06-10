@@ -6,7 +6,7 @@ export interface PorscheModel {
   make: string;
   basemodel: string;
   model: string;
-  fueltype: string;
+  fuel_type: string;
   city_mpg: number;
   highway_mpg: number;
   combined_mpg: number;

@@ -11,6 +11,7 @@ html, body {
   overflow-x: hidden;
   width: 100%;
   height: 100%;
+  background-color: #e7e7e7; /* Light grey background */
 }
 
 body {
@@ -57,6 +58,7 @@ body {
     gap: 1rem;
     justify-content: center;
     margin-bottom: 3%;
+    cursor: pointer;
   }
   
   .tile {

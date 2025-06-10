@@ -1,6 +1,292 @@
 <app-hero
-  [heroImage]="'assets/images/hero-garage.jpeg'"
+  [heroImage]="'assets/images/hero/hero-garage.jpeg'"
   [heading]="'My Garage'"
   [mainPage]="false"
 ></app-hero>
-<p>models works!</p>
+
+<div class="garage-content" style="padding: 2rem; text-align: center">
+  <!-- Loading State -->
+  @if (loading) {
+    <div
+      style="
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 200px;
+      "
+    >
+      <p-spinner size="large"></p-spinner>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !loading) {
+    <div style="min-height: 200px">
+      <p-banner
+        [open]="true"
+        [heading]="'Error'"
+        [headingTag]="'h3'"
+        [description]="
+          'You are not logged in, you will be redirected to the home page in a few seconds.'
+        "
+        [state]="'error'"
+        [dismissButton]="false"
+      >
+      </p-banner>
+    </div>
+  }
+
+  <!-- Success State -->
+  @if (!loading && !error) {
+    @if (garageCount === 0) {
+      <div
+        style="
+          min-height: 300px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <p-icon
+          name="garage"
+          size="x-large"
+          style="margin-bottom: 1.5rem; opacity: 0.5"
+        ></p-icon>
+        <p-heading size="large" style="margin-bottom: 1rem; color: #666"
+          >Nothing in garage</p-heading
+        >
+        <p-text size="medium" style="color: #888; margin-bottom: 2rem">
+          Your garage is currently empty. Maybe you should add some of your
+          Porsche's ?
+        </p-text>
+        <p-button icon="plus" theme="light" (click)="addCarModal()">
+          Add a car to your garage.
+        </p-button>
+      </div>
+    } @else {
+      <div style="min-height: 300px">
+        <p-button icon="plus" theme="light" (click)="addCarModal()">
+          Add a car to your garage.
+        </p-button>
+        <p-heading size="large" style="margin-bottom: 1rem">
+          You have {{ garageCount }} model{{ garageCount > 1 ? "s" : "" }} in
+          your garage
+        </p-heading>
+        <p-text size="medium" style="color: #666">
+          Your saved models will appear here.
+        </p-text>
+        <!-- TODO: Add actual garage models display -->
+      </div>
+    }
+
+    <p-modal
+      [open]="addCarModalOpen"
+      (dismiss)="onAddCarModalDismiss()"
+      [aria]="{ 'aria-label': 'Add Car to Garage' }"
+    >
+      <div style="display: flex; justify-content: center; margin-bottom: 30px">
+        <p-wordmark></p-wordmark>
+      </div>
+      
+      <!-- Stepper -->
+      <p-stepper-horizontal style="margin-bottom: 2rem;">
+        <p-stepper-horizontal-item [state]="getStepState(1)">
+          Basic Info
+        </p-stepper-horizontal-item>
+        <p-stepper-horizontal-item [state]="getStepState(2)">
+          Details
+        </p-stepper-horizontal-item>
+        <p-stepper-horizontal-item [state]="getStepState(3)">
+          Review
+        </p-stepper-horizontal-item>
+      </p-stepper-horizontal>
+
+      <!-- Step 1 Form - Basic Car Information -->
+      @if (currentStep === 1) {
+        <form [formGroup]="step1Form" style="padding: 25px; min-width: 500px;">
+          <p-heading size="medium" style="margin-bottom: 1.5rem;">Basic Car Information</p-heading>
+          
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <p-text-field-wrapper 
+              label="Base Model" 
+              [state]="hasFieldError(step1Form, 'baseModel') ? 'error' : 'none'"
+              [message]="getFieldError(step1Form, 'baseModel')">
+              <input type="text" pText formControlName="baseModel" placeholder="e.g., 911, Cayenne, Macan" />
+            </p-text-field-wrapper>
+
+            <p-text-field-wrapper 
+              label="Specific Model" 
+              [state]="hasFieldError(step1Form, 'model') ? 'error' : 'none'"
+              [message]="getFieldError(step1Form, 'model')">
+              <input type="text" pText formControlName="model" placeholder="e.g., Carrera S, Turbo, GTS" />
+            </p-text-field-wrapper>
+
+            <p-text-field-wrapper 
+              label="Year" 
+              [state]="hasFieldError(step1Form, 'year') ? 'error' : 'none'"
+              [message]="getFieldError(step1Form, 'year')">
+              <input type="number" pText formControlName="year" placeholder="e.g., 2023" min="1950" [max]="currentYear" />
+            </p-text-field-wrapper>
+          </div>
+
+          <p-button-group style="width: 100%; margin-top: 2rem;">
+            <p-button type="button" variant="secondary" (click)="onAddCarModalDismiss()" style="flex: 1;">
+              Cancel
+            </p-button>
+            <p-button type="button" [disabled]="step1Form.invalid" (click)="nextStep()" style="flex: 1;">
+              Next
+            </p-button>
+          </p-button-group>
+        </form>
+      }
+
+      <!-- Step 2 Form - Detailed Car Information -->
+      @if (currentStep === 2) {
+        <form [formGroup]="step2Form" style="padding: 25px; min-width: 500px;">
+          <p-heading size="medium" style="margin-bottom: 1.5rem;">Car Details</p-heading>
+          
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <div style="display: flex; gap: 15px;">
+              <p-text-field-wrapper 
+                label="Mileage" 
+                [state]="hasFieldError(step2Form, 'mileage') ? 'error' : 'none'"
+                [message]="getFieldError(step2Form, 'mileage')" 
+                style="flex: 1;">
+                <input type="number" pText formControlName="mileage" placeholder="0" min="0" />
+              </p-text-field-wrapper>
+              
+              <p-text-field-wrapper 
+                label="Acquisition Year" 
+                [state]="hasFieldError(step2Form, 'acquisitionYear') ? 'error' : 'none'"
+                [message]="getFieldError(step2Form, 'acquisitionYear')" 
+                style="flex: 1;">
+                <input type="number" pText formControlName="acquisitionYear" placeholder="e.g., 2023" min="1950" [max]="currentYear" />
+              </p-text-field-wrapper>
+            </div>
+
+            <div style="display: flex; gap: 15px;">
+              <p-select-wrapper 
+                label="Condition" 
+                [state]="hasFieldError(step2Form, 'condition') ? 'error' : 'none'"
+                [message]="getFieldError(step2Form, 'condition')" 
+                style="flex: 1;">
+                <select pSelect formControlName="condition">
+                  <option value="">Select condition</option>
+                  <option value="excellent">Excellent</option>
+                  <option value="very-good">Very Good</option>
+                  <option value="good">Good</option>
+                  <option value="fair">Fair</option>
+                  <option value="needs-work">Needs Work</option>
+                </select>
+              </p-select-wrapper>
+
+              <p-text-field-wrapper 
+                label="Color" 
+                [state]="hasFieldError(step2Form, 'color') ? 'error' : 'none'"
+                [message]="getFieldError(step2Form, 'color')" 
+                style="flex: 1;">
+                <input type="text" pText formControlName="color" placeholder="e.g., Guards Red, Black" />
+              </p-text-field-wrapper>
+            </div>
+
+            <p-text-field-wrapper 
+              label="VIN (Optional)" 
+              [state]="hasFieldError(step2Form, 'vin') ? 'error' : 'none'"
+              [message]="getFieldError(step2Form, 'vin')">
+              <input type="text" pText formControlName="vin" placeholder="Vehicle Identification Number" />
+            </p-text-field-wrapper>
+
+            <p-textarea-wrapper 
+              label="Additional Notes (Optional)"
+              [state]="hasFieldError(step2Form, 'notes') ? 'error' : 'none'"
+              [message]="getFieldError(step2Form, 'notes')">
+              <textarea pTextarea formControlName="notes" placeholder="Any additional information about your car..." rows="3"></textarea>
+            </p-textarea-wrapper>
+          </div>          <p-button-group style="width: 100%; margin-top: 2rem;">
+            <p-button type="button" variant="secondary" (click)="previousStep()" style="flex: 1;">
+              Previous
+            </p-button>
+            <p-button type="button" [disabled]="step2Form.invalid" (click)="nextStep()" style="flex: 1;">
+              Review
+            </p-button>
+          </p-button-group>
+        </form>
+      }
+
+      <!-- Step 3 - Review Information -->
+      @if (currentStep === 3) {
+        <div style="padding: 25px; min-width: 500px;">
+          <p-heading size="medium" style="margin-bottom: 1.5rem;">Review Your Car Information</p-heading>
+          
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- Basic Information Section -->
+            <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <p-heading size="small" style="margin-bottom: 1rem; color: #333;">Basic Information</p-heading>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Base Model</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().baseModel }}</p-text>
+                </div>
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Specific Model</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().model }}</p-text>
+                </div>
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Year</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().year }}</p-text>
+                </div>
+              </div>
+            </div>
+
+            <!-- Car Details Section -->
+            <div style="padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+              <p-heading size="small" style="margin-bottom: 1rem; color: #333;">Car Details</p-heading>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Mileage</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().mileage | number }} miles</p-text>
+                </div>
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Acquisition Year</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().acquisitionYear }}</p-text>
+                </div>
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Condition</p-text>
+                  <p-text weight="semi-bold">{{ getFormattedCondition(getReviewData().condition) }}</p-text>
+                </div>
+                <div>
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Color</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().color }}</p-text>
+                </div>
+              </div>
+              
+              @if (getReviewData().vin) {
+                <div style="margin-top: 15px;">
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">VIN</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().vin }}</p-text>
+                </div>
+              }
+              
+              @if (getReviewData().notes) {
+                <div style="margin-top: 15px;">
+                  <p-text size="small" style="color: #666; display: block; margin-bottom: 4px;">Additional Notes</p-text>
+                  <p-text weight="semi-bold">{{ getReviewData().notes }}</p-text>
+                </div>
+              }
+            </div>
+          </div>
+
+          <p-button-group style="width: 100%; margin-top: 2rem;">
+            <p-button type="button" variant="secondary" (click)="previousStep()" style="flex: 1;">
+              Previous
+            </p-button>
+            <p-button type="button" (click)="onSubmitCar()" style="flex: 1;">
+              Add to Garage
+            </p-button>
+          </p-button-group>
+        </div>
+      }
+    </p-modal>
+  }
+</div>

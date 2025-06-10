@@ -2,14 +2,29 @@
     min-height: 100vh;
 }
 
-.signature-container{
-  margin-top: 3%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+.submodel-summary {
+    margin-left: 2%;
 }
 
-.signature {
-    width: 100%;
+.variants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.variant-details {
+  padding: 1rem 0;
+}
+
+.submodel-group {
+  margin-bottom: 2rem;
+}
+
+.submodel-group h4 {
+  margin-bottom: 1rem;
+}
+
+.submodel-group-info {
+  margin-bottom: 1rem;
 }

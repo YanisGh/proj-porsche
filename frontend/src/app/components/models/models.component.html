@@ -1,17 +1,31 @@
 <app-hero
-  [heroImage]="'assets/images/hero-models.jpg'"
+  [heroImage]="'assets/images/hero/hero-models.jpg'"
   [heading]="'Our Models'"
   [mainPage]="false"
 ></app-hero>
 
 @if (loading) {
-  <div class="skeleton skeleton--light skeleton--box"></div>
-} @else if (error) {
-  <div>{{ error }}</div>
-} @else {
-  <div class="divider">
-    <p-divider></p-divider>
+  <div class="skeleton-center">
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
   </div>
+    
+} @else if (error) {
+    <p-banner
+    [open]="errorBannerOpen"
+    (dismiss)="errorBannerOpen = false"
+    [heading]="'Error'"
+    [headingTag]="'h3'"
+    [description]="'Failed to load models.'"
+    [state]="'error'"
+    [dismissButton]="true"
+  ></p-banner>
+  <div class="heading-center">
+    <p-heading>{{ error }}</p-heading>
+    <p-button type="reset" style="flex: 1; margin: 2%;" (click)="reloadBaseModels()">Try again</p-button>
+  </div>
+} @else {
   <div class="heading-center">
     <p-heading>
       Discover Porsche's historic lineup.
@@ -24,7 +38,6 @@
          et je n'ai pas besoin de 2 link -->
         <p-link-tile class="tile"
         label="Select model" 
-        cursor="pointer"
         background="dark"
         [gradient]="false"
         size="large"

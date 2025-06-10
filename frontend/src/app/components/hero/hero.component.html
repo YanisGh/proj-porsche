@@ -1,7 +1,20 @@
-<div [ngClass]="mainPage ? 'hero-container' : 'hero-container-not-main'">
+@if (subModelPage){
+  <div class="signature-container">
+    <p-model-signature [model]="getValidModelOrFallback(model)" [safeZone]="false" class="signature">
+        <img [src]="heroImage" />
+    </p-model-signature>
+</div>
+} @else {
+  <div [ngClass]="mainPage ? 'hero-container' : 'hero-container-not-main'">
   <img [src]="heroImage" class="img-hero" />
 
   <div class="hero-heading">
     <p-display theme="dark" size="medium">{{ heading }}</p-display>
   </div>
+</div>
+}
+
+
+<div class="divider">
+    <p-divider></p-divider>
 </div>
