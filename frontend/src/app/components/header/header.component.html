@@ -252,6 +252,11 @@
   [aria]="{ 'aria-label': 'Navigation Menu' }"
   (dismiss)="onDismiss()"
 >
+  @if (userConnected) {
+    <p-heading theme="light" size="large">
+      Welcome, {{ userFirstName }}
+    </p-heading>
+  }
   <div class="flyout-category">
     <p-link
       icon="home"

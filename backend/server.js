@@ -425,6 +425,53 @@ app.post('/garage/cars', (req, res) => {
   }
 });
 
+// Route to retrieve user data by email
+app.post('/user', (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required.'
+      });
+    }
+    const usersFilePath = path.join(__dirname, 'data', 'users.json');
+    let users = [];
+    try {
+      const usersData = fs.readFileSync(usersFilePath, 'utf8');
+      users = JSON.parse(usersData);
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: 'Sorry, we could not access user data. Please try again later.'
+      });
+    }
+    const user = users.find(user => user.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.'
+      });
+    }
+    // Return only the requested fields
+    const { firstName, lastName, createdAt } = user;
+    res.json({
+      success: true,
+      user: {
+        email: user.email,
+        firstName,
+        lastName,
+        createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Sorry, we could not retrieve user data. Please try again later.'
+    });
+  }
+});
+
 app.use((err, req, res, next) => {
   if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
     res.status(503).json({ success: false, message: 'Sorry, our service is currently unavailable. Please check your connection or try again in a few moments.' });

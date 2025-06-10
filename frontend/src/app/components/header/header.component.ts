@@ -26,6 +26,7 @@ export class HeaderComponent implements OnDestroy {
   loginSuccess: boolean = false;
   bannerOpen = false;
   userConnected: boolean = false;
+  userFirstName: string | null = null;
   private userConnectedSub: Subscription;
 
   // Form groups for validation
@@ -186,8 +187,19 @@ export class HeaderComponent implements OnDestroy {
     this.authService.login(email, password).subscribe({
       next: (response) => {
         console.log('Login successful:', response);
-        // Store user information in auth service
-        this.authService.setCurrentUser(response.user);
+        // Retrieve user basic data for greeting
+        this.authService.getUserBasicData(email).subscribe({
+          next: (userResp) => {
+            if (userResp.success && userResp.user && userResp.user.firstName) {
+              this.userFirstName = userResp.user.firstName;
+            }
+            this.authService.setCurrentUser({ ...response.user, ...userResp.user });
+          },
+          error: () => {
+            this.userFirstName = null;
+            this.authService.setCurrentUser(response.user);
+          }
+        });
         this.loginSuccess = true;
         this.bannerOpen = true;
         this.store.dispatch(loginSuccess());
