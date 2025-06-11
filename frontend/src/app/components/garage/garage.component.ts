@@ -41,6 +41,11 @@ export class GarageComponent implements OnInit {
   // Forms
   step1Form: FormGroup;
   step2Form: FormGroup;
+  editCarForm: FormGroup;
+  // States
+  editMode: boolean = false;
+  deleteConfirmationOpen: boolean = false;
+
 
   constructor(
     private authService: AuthService,
@@ -79,12 +84,20 @@ export class GarageComponent implements OnInit {
       vin: [''],
       notes: [''],
     });
+
+    // Initialize edit form
+    this.editCarForm = this.fb.group({
+      mileage: ['', [Validators.required, Validators.min(0)]],
+      condition: ['', [Validators.required]],
+      notes: [''],
+    });
   }
   ngOnInit() {
     this.loadGarage();
     this.loadBaseModels();
   }
 
+  //Pour le step ou l'on choisit le modèle de base
   private loadBaseModels() {
     this.modelsService.getBaseModels().subscribe({
       next: (response) => {
@@ -247,7 +260,6 @@ export class GarageComponent implements OnInit {
           // Refresh the garage data to get updated cars list
           this.loadGarage();
           this.onAddCarModalDismiss();
-          // TODO: Show success message or banner
         },
         error: (error) => {
           console.error('Failed to add car:', error);
@@ -279,6 +291,78 @@ export class GarageComponent implements OnInit {
       setTimeout(() => {
         this.router.navigate(['/']);
       }, 5000);
+    }
+  }
+
+  // Edit and Delete functionality
+  enterEditMode() {
+    if (this.selectedCar) {
+      this.editMode = true;
+      this.editCarForm.patchValue({
+        mileage: this.selectedCar.mileage,
+        condition: this.selectedCar.condition,
+        notes: this.selectedCar.notes || '',
+      });
+    }
+  }
+
+  cancelEdit() {
+    this.editMode = false;
+    this.editCarForm.reset();
+  }
+  saveCarChanges() {
+    if (this.editCarForm.valid && this.selectedCar) {
+      const carName = `${this.selectedCar.baseModel} ${this.selectedCar.model}`;
+      const updatedData = {
+        ...this.editCarForm.value,
+      };
+
+      this.garageService.updateCar(this.selectedCar.id, updatedData).subscribe({
+        next: (response) => {
+          console.log('Car updated successfully:', response);
+          // Update the local car data
+          const carIndex = this.cars.findIndex(
+            (car) => car.id === this.selectedCar.id
+          );
+          if (carIndex !== -1) {
+            this.cars[carIndex] = { ...this.cars[carIndex], ...updatedData };
+            this.selectedCar = this.cars[carIndex];
+          }
+          this.editMode = false;
+          this.editCarForm.reset();
+        },
+        error: (error) => {
+          console.error('Failed to update car:', error);
+        },
+      });
+    }
+  }
+
+  confirmDeleteCar() {
+    this.deleteConfirmationOpen = true;
+  }
+  onDeleteConfirmationDismiss() {
+    this.deleteConfirmationOpen = false;
+  }
+
+  deleteCar() {
+    if (this.selectedCar) {
+      const carName = `${this.selectedCar.baseModel} ${this.selectedCar.model}`;
+      this.garageService.deleteCar(this.selectedCar.id).subscribe({
+        next: (response) => {
+          console.log('Car deleted successfully:', response);
+          // Remove car from local array
+          this.cars = this.cars.filter((car) => car.id !== this.selectedCar.id);
+          this.garageCount = this.cars.length;
+          // Close modals
+          this.deleteConfirmationOpen = false;
+          this.carDetailFlyoutOpen = false;
+          this.selectedCar = null;
+          },
+        error: (error) => {
+          console.error('Failed to delete car:', error);
+        },
+      });
     }
   }
 }

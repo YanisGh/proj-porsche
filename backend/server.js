@@ -425,6 +425,166 @@ app.post('/garage/cars', (req, res) => {
   }
 });
 
+// Update car in user's garage
+app.put('/garage/update/:carId', (req, res) => {
+  try {
+    const { carId } = req.params;
+    const { email, updatedData } = req.body;
+    
+    if (!email || !updatedData) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email and updated data are required.' 
+      });
+    }
+    
+    const usersFilePath = path.join(__dirname, 'data', 'users.json');
+    
+    // Read existing users
+    let users = [];
+    try {
+      const usersData = fs.readFileSync(usersFilePath, 'utf8');
+      users = JSON.parse(usersData);
+    } catch (err) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Sorry, we could not access user data. Please try again later.' 
+      });
+    }
+    
+    // Find user by email
+    const userIndex = users.findIndex(user => user.email.toLowerCase() === email.toLowerCase());
+    
+    if (userIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found.' 
+      });
+    }
+    
+    // Find car in user's garage
+    const user = users[userIndex];
+    if (!user.garage) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No garage found for user.' 
+      });
+    }
+    
+    const carIndex = user.garage.findIndex(car => car.id == carId);
+    
+    if (carIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Car not found in garage.' 
+      });
+    }
+    
+    // Update car with new data
+    users[userIndex].garage[carIndex] = {
+      ...users[userIndex].garage[carIndex],
+      ...updatedData,
+      updatedAt: new Date().toISOString()
+    };
+    
+    // Save updated users data
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+    
+    res.json({ 
+      success: true, 
+      message: 'Car updated successfully!',
+      car: users[userIndex].garage[carIndex]
+    });
+    
+  } catch (error) {
+    console.error('Update car error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Sorry, we could not update the car. Please try again later.' 
+    });
+  }
+});
+
+// Delete car from user's garage
+app.delete('/garage/delete/:carId', (req, res) => {
+  try {
+    const { carId } = req.params;
+    const { email } = req.body;
+    
+    if (!email) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Email is required.' 
+      });
+    }
+    
+    const usersFilePath = path.join(__dirname, 'data', 'users.json');
+    
+    // Read existing users
+    let users = [];
+    try {
+      const usersData = fs.readFileSync(usersFilePath, 'utf8');
+      users = JSON.parse(usersData);
+    } catch (err) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Sorry, we could not access user data. Please try again later.' 
+      });
+    }
+    
+    // Find user by email
+    const userIndex = users.findIndex(user => user.email.toLowerCase() === email.toLowerCase());
+    
+    if (userIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found.' 
+      });
+    }
+    
+    // Find car in user's garage
+    const user = users[userIndex];
+    if (!user.garage) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No garage found for user.' 
+      });
+    }
+    
+    const carIndex = user.garage.findIndex(car => car.id == carId);
+    
+    if (carIndex === -1) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Car not found in garage.' 
+      });
+    }
+    
+    // Store car info for response
+    const deletedCar = users[userIndex].garage[carIndex];
+    
+    // Remove car from garage
+    users[userIndex].garage.splice(carIndex, 1);
+    
+    // Save updated users data
+    fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+    
+    res.json({ 
+      success: true, 
+      message: 'Car deleted successfully!',
+      deletedCar: deletedCar,
+      newGarageCount: users[userIndex].garage.length
+    });
+    
+  } catch (error) {
+    console.error('Delete car error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Sorry, we could not delete the car. Please try again later.' 
+    });
+  }
+});
+
 // Route to retrieve user data by email
 app.post('/user', (req, res) => {
   try {

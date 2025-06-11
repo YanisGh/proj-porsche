@@ -21,7 +21,6 @@
 
   <!-- Error State -->
   @if (error && !loading) {
-  <div style="min-height: 200px">
     <p-banner
       [open]="true"
       [heading]="'Error'"
@@ -33,7 +32,6 @@
       [dismissButton]="false"
     >
     </p-banner>
-  </div>
   }
 
   <!-- Success State -->
@@ -465,7 +463,45 @@
         </p-button>
       </p-button-group>
     </div>
-    }
+    }  </p-modal>
+
+  <!-- Delete Confirmation Modal -->
+  <p-modal
+    [open]="deleteConfirmationOpen"
+    (dismiss)="onDeleteConfirmationDismiss()"
+    [aria]="{ 'aria-label': 'Confirm Car Deletion' }"
+  >
+    <div style="display: flex; justify-content: center; margin-bottom: 30px">
+      <p-wordmark></p-wordmark>
+    </div>
+
+    <div style="padding: 25px; min-width: 400px; text-align: center">
+      <p-icon name="warning" size="large" style="color: #e74c3c; margin-bottom: 1rem"></p-icon>
+      
+      <p-heading size="medium" style="margin-bottom: 1rem">
+        Delete {{ selectedCar?.baseModel }} {{ selectedCar?.model }}?
+      </p-heading>
+      
+      <p-text style="color: #666; margin-bottom: 2rem">
+        This action cannot be undone. Your car will be permanently removed from your garage.
+      </p-text>
+
+      <p-button-group style="width: 100%">
+        <p-button
+          variant="secondary"
+          (click)="onDeleteConfirmationDismiss()"
+          style="flex: 1"
+        >
+          Cancel
+        </p-button>
+        <p-button
+          (click)="deleteCar()"
+          style="flex: 1"
+        >
+          Delete Car
+        </p-button>
+      </p-button-group>
+    </div>
   </p-modal>
   }
 </div>
@@ -482,40 +518,129 @@
       selectedCar?.year
     }})
   </p-heading>
+  @if (!editMode) {
+    <div class="car-details">
+      <p-text-list>
+        <p-text-list-item>
+          <strong>Year:</strong> {{ selectedCar?.year }}
+        </p-text-list-item>
+        <p-text-list-item>
+          <strong>Mileage:</strong> {{ selectedCar?.mileage | number }} miles
+        </p-text-list-item>
+        <p-text-list-item>
+          <strong>Acquisition Year:</strong> {{ selectedCar?.acquisitionYear }}
+        </p-text-list-item>
+        <p-text-list-item>
+          <strong>Condition:</strong>
+          {{ getFormattedCondition(selectedCar?.condition) }}
+        </p-text-list-item>
+        <p-text-list-item>
+          <strong>Color:</strong> {{ selectedCar?.color }}
+        </p-text-list-item>
+        @if (selectedCar?.vin) {
+        <p-text-list-item>
+          <strong>VIN:</strong> {{ selectedCar?.vin }}
+        </p-text-list-item>
+        }
+        <p-text-list-item>
+          <strong>Added to Garage:</strong> {{ formatDate(selectedCar?.addedAt) }}
+        </p-text-list-item>
+        @if (selectedCar?.notes) {
+        <p-text-list-item>
+          <strong>Notes:</strong> {{ selectedCar?.notes }}
+        </p-text-list-item>
+        }
+      </p-text-list>
+    </div>
 
-  <div class="car-details">
-    <p-text-list>
-      <p-text-list-item>
-        <strong>Year:</strong> {{ selectedCar?.year }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Mileage:</strong> {{ selectedCar?.mileage | number }} miles
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Acquisition Year:</strong> {{ selectedCar?.acquisitionYear }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Condition:</strong>
-        {{ getFormattedCondition(selectedCar?.condition) }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Color:</strong> {{ selectedCar?.color }}
-      </p-text-list-item>
-      @if (selectedCar?.vin) {
-      <p-text-list-item>
-        <strong>VIN:</strong> {{ selectedCar?.vin }}
-      </p-text-list-item>
-      }
-      <p-text-list-item>
-        <strong>Added to Garage:</strong> {{ formatDate(selectedCar?.addedAt) }}
-      </p-text-list-item>
-      @if (selectedCar?.notes) {
-      <p-text-list-item>
-        <strong>Notes:</strong> {{ selectedCar?.notes }}
-      </p-text-list-item>
-      }
-    </p-text-list>
-  </div>
+    <p-button-group slot="footer" style="width: 100%">
+      <p-button 
+        variant="secondary" 
+        icon="edit" 
+        (click)="enterEditMode()" 
+        style="flex: 1"
+      >
+        Edit
+      </p-button>
+      <p-button 
+        variant="secondary" 
+        icon="delete" 
+        (click)="confirmDeleteCar()" 
+        style="flex: 1"
+      >
+        Delete
+      </p-button>
+      <p-button 
+        (click)="onCarDetailDismiss()" 
+        style="flex: 1"
+      >
+        Close
+      </p-button>
+    </p-button-group>
+  } @else {
+    <!-- Edit Form -->
+    <form [formGroup]="editCarForm" style="padding: 0">
+      <div style="display: flex; flex-direction: column; gap: 20px">
+        <p-text-field-wrapper
+          label="Mileage"
+          [state]="hasFieldError(editCarForm, 'mileage') ? 'error' : 'none'"
+          [message]="getFieldError(editCarForm, 'mileage')"
+        >
+          <input
+            type="number"
+            pText
+            formControlName="mileage"
+            placeholder="0"
+            min="0"
+          />
+        </p-text-field-wrapper>
 
-  <p-button slot="footer" (click)="onCarDetailDismiss()">Close</p-button>
+        <p-select-wrapper
+          label="Condition"
+          [state]="hasFieldError(editCarForm, 'condition') ? 'error' : 'none'"
+          [message]="getFieldError(editCarForm, 'condition')"
+        >
+          <select pSelect formControlName="condition">
+            <option value="">Select condition</option>
+            <option value="excellent">Excellent</option>
+            <option value="very-good">Very Good</option>
+            <option value="good">Good</option>
+            <option value="fair">Fair</option>
+            <option value="needs-work">Needs Work</option>
+          </select>
+        </p-select-wrapper>
+
+        <p-textarea-wrapper
+          label="Notes (Optional)"
+          [state]="hasFieldError(editCarForm, 'notes') ? 'error' : 'none'"
+          [message]="getFieldError(editCarForm, 'notes')"
+        >
+          <textarea
+            pTextarea
+            formControlName="notes"
+            placeholder="Any additional information about your car..."
+            rows="3"
+          ></textarea>
+        </p-textarea-wrapper>
+      </div>
+    </form>
+
+    <p-button-group slot="footer" style="width: 100%">
+      <p-button 
+        variant="secondary" 
+        (click)="cancelEdit()" 
+        style="flex: 1"
+      >
+        Cancel
+      </p-button>
+      <p-button 
+        [disabled]="editCarForm.invalid" 
+        (click)="saveCarChanges()" 
+        style="flex: 1"
+      >
+        Save
+      </p-button>
+    </p-button-group>
+  }
+  
 </p-flyout>

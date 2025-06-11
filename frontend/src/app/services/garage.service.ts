@@ -39,4 +39,25 @@ export class GarageService {
       email: currentUser.email,
     });
   }
+
+  updateCar(carId: string, updatedData: any): Observable<any> {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.email) {
+      throw new Error('No user logged in');
+    }
+    return this.http.put(`${this.apiUrl}/garage/update/${carId}`, {
+      email: currentUser.email,
+      updatedData,
+    });
+  }
+
+  deleteCar(carId: string): Observable<any> {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser?.email) {
+      throw new Error('No user logged in');
+    }
+    return this.http.delete(`${this.apiUrl}/garage/delete/${carId}`, {
+      body: { email: currentUser.email },
+    });
+  }
 }
