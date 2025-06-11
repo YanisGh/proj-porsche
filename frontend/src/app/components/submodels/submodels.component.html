@@ -1,5 +1,5 @@
 <app-hero
-  [heroImage]="'assets/images/hero/911-hero.jpg'"
+  [heroImage]="'assets/images/cars/' + baseModel.toLowerCase() + '.jpg'"
   [heading]="'Our Models'"
   [mainPage]="false"
   [subModelPage]="true"
@@ -7,161 +7,169 @@
 ></app-hero>
 
 @if (loading) {
-  <div class="skeleton-center">
-    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
-    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
-    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
-  </div>
+<div class="skeleton-center">
+  <div class="skeleton skeleton--light skeleton--box" style="margin: 1%"></div>
+  <div class="skeleton skeleton--light skeleton--box" style="margin: 1%"></div>
+  <div class="skeleton skeleton--light skeleton--box" style="margin: 1%"></div>
+</div>
 } @else if (error) {
 <div>{{ error }}</div>
 } @else {
-<p-link-pure
-  (click)="goBackToModels()"
-  icon="arrow-left"
-  style="cursor: pointer"
->
-  Go back to all models
-</p-link-pure>
-<p-heading> Variants for the Porsche {{ baseModel }} </p-heading>
-<div class="submodel-summary">
-  <p-tabs weight="semi-bold">
-    <p-tabs-item label="Years & Class">
-      <p-text-list>
-        <p-text-list-item>
-          <strong>Years produced:</strong> {{ getRange(submodelYears) }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>Class:</strong> {{ getAllUnique(submodels, "vclass") }}
-        </p-text-list-item>
-      </p-text-list>
-    </p-tabs-item>
-    <p-tabs-item label="Performance">
-      <p-text-list>
-        <p-text-list-item>
-          <strong>Available Transmissions:</strong>
-          {{ getAllUnique(submodels, "transmission") }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>Available Drives:</strong>
-          {{ getAllUnique(submodels, "drive") }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>Engine Configurations:</strong>
-          {{ getCylindersWithDisplacement(submodels) }}
-        </p-text-list-item>
-      </p-text-list>
-    </p-tabs-item>
-    <p-tabs-item label="Efficiency">
-      <p-text-list>
-        <p-text-list-item>
-          <strong>Available fuel types:</strong>
-          {{ getAllUnique(submodels, "fuel_type") }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>City MPG:</strong> ranging from
-          {{ getMPGRange(submodels, "city_mpg") }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>Highway MPG:</strong> ranging from
-          {{ getMPGRange(submodels, "highway_mpg") }}
-        </p-text-list-item>
-        <p-text-list-item>
-          <strong>Combined MPG:</strong> ranging from
-          {{ getMPGRange(submodels, "combined_mpg") }}
-        </p-text-list-item>
-      </p-text-list>
-    </p-tabs-item>
-  </p-tabs>
-</div>
-<h3>All Submodels & Variants</h3>
-<div class="submodel-group-list">
-  @for (subName of getUniqueSubmodelNames(submodels); track subName) {
-  <div class="submodel-group">
-    <h4>{{ subName }}</h4>
-    <div class="submodel-group-info">
-      <p>
-        <strong>Years produced:</strong>
-        {{ getRange(getYearsForSubmodel(subName)) }}
-      </p>
-      <p>
-        <strong>Engine:</strong> {{ getCylindersWithDisplacement(subName) }}
-      </p>
-      <p>
-        <strong>Drive(s):</strong>
-        {{ getAllUniqueForSubmodel(subName, "drive") }}
-      </p>
-      <p>
-        <strong>Transmission(s):</strong>
-        {{ getAllUniqueForSubmodel(subName, "transmission") }}
-      </p>
-      <p>
-        <strong>Fuel type(s):</strong>
-        {{ getAllUniqueForSubmodel(subName, "fuel_type") }}
-      </p>
-      <p>
-        <strong>MPG (city/highway/combined):</strong>
-        {{ getAllUniqueForSubmodel(subName, "city_mpg") }} /
-        {{ getAllUniqueForSubmodel(subName, "highway_mpg") }} /
-        {{ getAllUniqueForSubmodel(subName, "combined_mpg") }}
-      </p>
-    </div>
-    <div class="variants-grid">
-      @for (variant of getVariantsForSubmodel(subName); track variant) {
-      <p-button-tile
-        [label]="'Details'"
-        [description]="variant.model + ' (' + variant.year + ')'"
-        (click)="onVariantDetailClick(variant)"
-      >
-      </p-button-tile>
-      }
-    </div>
+<div class="background">
+  <div class="submodel-summary">
+    <p-link-pure
+      (click)="goBackToModels()"
+      icon="arrow-left"
+      style="cursor: pointer"
+    >
+      Go back to all models
+    </p-link-pure>
+    <p-heading> Overview </p-heading>
+    <p-text> Explore and Discover all {{ baseModel }} variants </p-text>
+    <p-tabs weight="semi-bold">
+      <p-tabs-item label="Years & Class">
+        <p-text-list>
+          <p-text-list-item>
+            <strong>Years produced : </strong> {{ getRange(submodelYears) }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Class : </strong> {{ getAllUnique(submodels, "vclass") }}
+          </p-text-list-item>
+        </p-text-list>
+      </p-tabs-item>
+      <p-tabs-item label="Performance">
+        <p-text-list>
+          <p-text-list-item>
+            <strong>Available Transmissions : </strong>
+            {{ getAllUnique(submodels, "transmission") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Available Drives : </strong>
+            {{ getAllUnique(submodels, "drive") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Engine Configurations : </strong>
+            {{ getCylindersWithDisplacement(submodels) }}
+          </p-text-list-item>
+        </p-text-list>
+      </p-tabs-item>
+      <p-tabs-item label="Efficiency">
+        <p-text-list>
+          <p-text-list-item>
+            <strong>Available fuel types : </strong>
+            {{ getAllUnique(submodels, "fuel_type") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>City MPG : </strong> ranging from
+            {{ getMPGRange(submodels, "city_mpg") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Highway MPG : </strong> ranging from
+            {{ getMPGRange(submodels, "highway_mpg") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Combined MPG : </strong> ranging from
+            {{ getMPGRange(submodels, "combined_mpg") }}
+          </p-text-list-item>
+        </p-text-list>
+      </p-tabs-item>
+    </p-tabs>
   </div>
-  }
+
+  <p-heading style="margin: 2%">All Submodels & Variants</p-heading>
+  <div class="submodel-group-list">
+    @for (subName of getUniqueSubmodelNames(submodels); track subName) {
+    <p-accordion
+      [open]="openSubmodelAccordions[subName]"
+      [heading]="subName"
+      (update)="onClickSubmodelAccordion(subName, $event.detail.open)"
+    >
+      <div class="submodel-group-info">
+        <p-text-list>
+          <p-text-list-item>
+            <strong>Years produced:</strong>
+            {{ getRange(getYearsForSubmodel(subName)) }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Engine:</strong> {{ getCylindersWithDisplacement(subName) }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Drive(s):</strong>
+            {{ getAllUniqueForSubmodel(subName, "drive") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Transmission(s):</strong>
+            {{ getAllUniqueForSubmodel(subName, "transmission") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Fuel type(s):</strong>
+            {{ getAllUniqueForSubmodel(subName, "fuel_type") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>City MPG:</strong> ranging from
+            {{ getMPGRange(getVariantsForSubmodel(subName), "city_mpg") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Highway MPG:</strong> ranging from
+            {{ getMPGRange(getVariantsForSubmodel(subName), "highway_mpg") }}
+          </p-text-list-item>
+          <p-text-list-item>
+            <strong>Combined MPG:</strong> ranging from
+            {{ getMPGRange(getVariantsForSubmodel(subName), "combined_mpg") }}
+          </p-text-list-item>
+        </p-text-list>
+      </div>
+      <div class="variants-container">
+        @for (variant of getVariantsForSubmodel(subName); track variant) {
+        <p-accordion
+          [open]="
+            openAccordions[
+              variant.year + '-' + variant.model + '-' + variant.transmission
+            ]
+          "
+          [heading]="variant.year + ''"
+          (update)="
+            onClickAccordion(
+              variant.year + '-' + variant.model + '-' + variant.transmission,
+              $event.detail.open
+            )
+          "
+        >
+          <p-text-list>
+            <p-text-list-item>
+              <strong>Year:</strong> {{ variant.year }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Engine:</strong> {{ variant.cylinders }} cylinders /
+              {{ variant.displ }}L
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Transmission:</strong> {{ variant.transmission }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Drive:</strong> {{ variant.drive }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Fuel Type:</strong> {{ variant.fuel_type }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Vehicle Class:</strong> {{ variant.vclass }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>City MPG:</strong> {{ variant.city_mpg }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Highway MPG:</strong> {{ variant.highway_mpg }}
+            </p-text-list-item>
+            <p-text-list-item>
+              <strong>Combined MPG:</strong> {{ variant.combined_mpg }}
+            </p-text-list-item>
+          </p-text-list>
+        </p-accordion>
+        }
+      </div>
+    </p-accordion>
+    }
+  </div>
 </div>
 }
-
-<p-flyout
-  [open]="open"
-  [position]="'end'"
-  [aria]="{ 'aria-label': 'Variant details' }"
-  (dismiss)="onDismiss()"
->
-  <p-heading slot="header"
-    >{{ selectedVariant?.model }} ({{ selectedVariant?.year }})</p-heading
-  >
-
-  <div class="variant-details">
-    <p-text-list>
-      <p-text-list-item>
-        <strong>Year:</strong> {{ selectedVariant?.year }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Engine:</strong> {{ selectedVariant?.cylinders }} cylinders /
-        {{ selectedVariant?.displ }}L
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Transmission:</strong> {{ selectedVariant?.transmission }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Drive:</strong> {{ selectedVariant?.drive }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Fuel Type:</strong> {{ selectedVariant?.fuel_type }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Vehicle Class:</strong> {{ selectedVariant?.vclass }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>City MPG:</strong> {{ selectedVariant?.city_mpg }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Highway MPG:</strong> {{ selectedVariant?.highway_mpg }}
-      </p-text-list-item>
-      <p-text-list-item>
-        <strong>Combined MPG:</strong> {{ selectedVariant?.combined_mpg }}
-      </p-text-list-item>
-    </p-text-list>
-  </div>
-
-  <p-button slot="footer" (click)="onDismiss()">Return to variants</p-button>
-</p-flyout>

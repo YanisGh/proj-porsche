@@ -2,15 +2,44 @@
     min-height: 100vh;
 }
 
-.submodel-summary {
-    margin-left: 2%;
+.background {
+    background: #ffffff;
+    padding: 1rem;
+    width: 95%;
+    margin: auto;
+    border-radius: 0.5rem;
 }
 
-.variants-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+.submodel-summary {
+    margin: 2%;
+}
+
+.submodel-summary > * {
+  margin-bottom: 1.25rem;
+}
+
+.submodel-summary > *:last-child {
+  margin-bottom: 0;
+}
+
+.submodel-group-list {
+  max-height: 30vh;
+  overflow-y: auto;
+  margin: 2%;
+  padding: 0.5rem 1rem;
+}
+
+.variants-container {
+  display: flex;
+  flex-direction: column;
+  width: 99%;
+  max-height: 30vh;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem 1rem;
+  background: #faf9f7;
+  margin: auto;
 }
 
 .variant-details {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModelsService, PorscheModel } from '../../services/models.service';
-import { PorscheDesignSystemModule } from '@porsche-design-system/components-angular';
+import { PorscheDesignSystemModule, type AccordionUpdateEventDetail } from '@porsche-design-system/components-angular';
 import { HeroComponent } from '../hero/hero.component';
 
 @Component({
@@ -16,7 +16,9 @@ export class SubmodelsComponent implements OnInit {
   error = '';
   baseModel = '';
   selectedVariant: PorscheModel | null = null;
-  open = false;
+  accordionOpen = false;
+  openAccordions: { [variantId: string]: boolean } = {};
+  openSubmodelAccordions: { [subName: string]: boolean } = {};
 
   constructor(private route: ActivatedRoute, private router: Router, private modelsService: ModelsService) {}
 
@@ -74,7 +76,6 @@ export class SubmodelsComponent implements OnInit {
     return this.submodels.map(s => Number(s.year));
   }
 
-  // Grouping helpers for template
   getUniqueSubmodelNames(submodels: PorscheModel[]): string[] {
     return Array.from(new Set(submodels.map(s => s.model)));
   }
@@ -121,14 +122,21 @@ export class SubmodelsComponent implements OnInit {
     if (min === max) return min.toString();
     return `${min} to ${max}`;
   }
-  onVariantDetailClick(variant: PorscheModel) {
-    this.selectedVariant = variant;
-    this.open = true;
+
+  onClickAccordion(variantId: string, open: boolean) {
+    // Close all, then open only the selected one if open=true
+    this.openAccordions = {};
+    if (open) {
+      this.openAccordions[variantId] = true;
+    }
   }
 
-  onDismiss() {
-    this.selectedVariant = null;
-    this.open = false;
+  onClickSubmodelAccordion(subName: string, open: boolean) {
+    // Close all, then open only the selected one if open=true
+    this.openSubmodelAccordions = {};
+    if (open) {
+      this.openSubmodelAccordions[subName] = true;
+    }
   }
 
   goBackToModels() {
