@@ -137,7 +137,6 @@ export class GarageComponent implements OnInit {
     return undefined;
   }
 
-  // Form validation helpers
   hasFieldError(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
@@ -196,11 +195,11 @@ export class GarageComponent implements OnInit {
     const imageMap: { [key: string]: string } = {
       '911': 'assets/images/cars/911.jpg',
       '718': 'assets/images/cars/718.jpg',
-      Cayenne: 'assets/images/cars/cayenne.jpg',
-      Macan: 'assets/images/cars/macan.jpg',
-      Panamera: 'assets/images/cars/panamera.jpg',
-      Taycan: 'assets/images/cars/taycan.jpg',
-      '918': 'assets/images/cars/918spyder.jpg',
+      'Cayenne': 'assets/images/cars/cayenne.jpg',
+      'Macan': 'assets/images/cars/macan.jpg',
+      'Panamera': 'assets/images/cars/panamera.jpg',
+      'Taycan': 'assets/images/cars/taycan.jpg',
+      '918 Spyder': 'assets/images/cars/918spyder.jpg',
       '924': 'assets/images/cars/924.jpg',
       '928': 'assets/images/cars/928.jpg',
       '944': 'assets/images/cars/944.jpg',

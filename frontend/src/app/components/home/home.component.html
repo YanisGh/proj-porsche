@@ -6,41 +6,47 @@
 <main class="main">
   <div class="content">
     <div class="content-tiles">
-       <p-carousel heading="All Porsche. All in one place." headingSize="xx-large">
-        <div class="grid place-content-center h-[150px] bg-surface prose-text-sm">
-         <p-link-tile
+      <p-carousel
+        heading="All Porsche. All in one place."
+        headingSize="xx-large"
+      >
+        <div
+          class="grid place-content-center h-[150px] bg-surface prose-text-sm"
+        >
+          <p-link-tile
             [href]="'https://porsche.com'"
             [label]="'Discover'"
             [description]="'Our latest models'"
             [compact]="true"
           >
-          <img src="assets/images/latest.png" alt="Some image description222" />
-        </p-link-tile>
+            <img src="assets/images/latest.png" alt="Latest Models" />
+          </p-link-tile>
         </div>
-        <div class="grid place-content-center h-[150px] bg-surface prose-text-sm">
+        <div
+          class="grid place-content-center h-[150px] bg-surface prose-text-sm"
+        >
           <p-link-tile
             [href]="'https://porsche.com'"
             [label]="'Discover'"
             [description]="'Our history'"
             [compact]="true"
-            >
-            <img src="assets/images/history.png" alt="Some image description222" />
+          >
+            <img src="assets/images/history.png" alt="Our history" />
           </p-link-tile>
         </div>
-        <div class="grid place-content-center h-[150px] bg-surface prose-text-sm">
+        <div
+          class="grid place-content-center h-[150px] bg-surface prose-text-sm"
+        >
           <p-link-tile
             [href]="'https://porsche.com'"
             [label]="'Technology'"
             [description]="'Technology'"
             [compact]="true"
           >
-            <img src="assets/images/tech.png" alt="Some image description222" />
+            <img src="assets/images/tech.png" alt="Technology" />
           </p-link-tile>
         </div>
       </p-carousel>
-      
-      
-      
     </div>
   </div>
 </main>

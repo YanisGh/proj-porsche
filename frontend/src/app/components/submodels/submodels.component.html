@@ -7,7 +7,11 @@
 ></app-hero>
 
 @if (loading) {
-<div>Loading submodels...</div>
+  <div class="skeleton-center">
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
+    <div class="skeleton skeleton--light skeleton--box" style="margin: 1%;"></div>
+  </div>
 } @else if (error) {
 <div>{{ error }}</div>
 } @else {
@@ -108,7 +112,6 @@
         [description]="variant.model + ' (' + variant.year + ')'"
         (click)="onVariantDetailClick(variant)"
       >
-        <img [src]="getModelImage(variant)" [alt]="variant.model" />
       </p-button-tile>
       }
     </div>
