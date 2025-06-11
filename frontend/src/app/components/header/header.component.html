@@ -55,7 +55,7 @@
     [description]="
       loginSuccess
         ? isSignupMode
-          ? 'Your account has been created successfully. Welcome!'
+          ? 'Your account has been created successfully. You can now login using the provided credentials.'
           : 'Welcome, you have successfully logged in.'
         : isSignupMode
         ? 'Account creation failed. Please try again.'
@@ -283,6 +283,17 @@
       (click)="navigateTo('garage')"
     >
       My Garage
+    </p-link>
+  </div>
+  }
+    @if (userConnected) {
+  <div class="flyout-category">
+    <p-link
+      icon="user"
+      style="display: inline-block; width: 200px; cursor: pointer"
+      (click)="navigateTo('profile')"
+    >
+      My Profile
     </p-link>
   </div>
   }

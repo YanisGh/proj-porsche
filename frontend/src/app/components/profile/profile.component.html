@@ -1,0 +1,209 @@
+<app-hero
+  [heroImage]="'assets/images/hero/hero-profile.jpeg'"
+  [heading]="'My Profile'"
+  [mainPage]="false"
+></app-hero>
+
+<div class="profile-content" style="padding: 2rem; max-width: 1200px; margin: 0 auto">
+  <!-- Loading State -->
+  @if (loading) {
+  <div
+    style="
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 200px;
+    "
+  >
+    <p-spinner size="large"></p-spinner>
+  </div>
+  }
+
+  <!-- Error State -->
+  @if (error && !loading) {
+    <div style="text-align: center">
+      <p-banner
+        [open]="true"
+        [heading]="'Error'"
+        [headingTag]="'h3'"
+        [description]="error"
+        [state]="'error'"
+        [dismissButton]="false"
+      >
+      </p-banner>
+    </div>
+  }
+
+  <!-- Success State -->
+  @if (!loading && !error && userData) {    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem">
+      <!-- User Information Card -->
+      <div class="profile-card" style="background: white; border-radius: 8px; padding: 2rem">
+        <p-heading size="large" style="margin-bottom: 1.5rem; color: #333">
+          Personal Information
+        </p-heading>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem">
+          <div>
+            <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+              Full Name
+            </p-text>
+            <p-text weight="semi-bold" size="medium">
+              {{ userData.firstName }} {{ userData.lastName }}
+            </p-text>
+          </div>
+          
+          <div>
+            <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+              Email Address
+            </p-text>
+            <p-text weight="semi-bold" size="medium">
+              {{ userData.email }}
+            </p-text>
+          </div>
+          
+          <div>
+            <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+              Member Since
+            </p-text>
+            <p-text weight="semi-bold" size="medium">
+              {{ userData.memberSince }}
+            </p-text>
+          </div>
+          
+          <div>
+            <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+              Account Created
+            </p-text>
+            <p-text weight="semi-bold" size="medium">
+              {{ formatDate(userData.createdAt) }}
+            </p-text>
+          </div>
+        </div>
+      </div>      <!-- Quick Stats Card -->
+      <div class="profile-card" style="background: white; border-radius: 8px; padding: 2rem">
+        <p-heading size="large" style="margin-bottom: 1.5rem; color: #333">
+          Quick Stats
+        </p-heading>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem">
+          <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px">
+            <p-text size="x-large" weight="semi-bold" style="color: #007b3a; display: block">
+              {{ garageStats.totalCars }}
+            </p-text>
+            <p-text size="small" style="color: #666">
+              Cars in Garage
+            </p-text>
+          </div>
+          
+          <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px">
+            <p-text size="x-large" weight="semi-bold" style="color: #007b3a; display: block">
+              {{ garageStats.averageMileage | number }}
+            </p-text>
+            <p-text size="small" style="color: #666">
+              Avg. Mileage
+            </p-text>
+          </div>
+          
+          @if (garageStats.mostCommonBaseModel) {
+          <div style="text-align: center; padding: 1rem; background: #f8f9fa; border-radius: 8px; grid-column: 1 / -1">
+            <p-text size="large" weight="semi-bold" style="color: #007b3a; display: block">
+              {{ garageStats.mostCommonBaseModel.model }}
+            </p-text>
+            <p-text size="small" style="color: #666">
+              Favorite Model ({{ garageStats.mostCommonBaseModel.count }} car{{ garageStats.mostCommonBaseModel.count > 1 ? 's' : '' }})
+            </p-text>
+          </div>
+          }
+        </div>
+        
+        <div style="margin-top: 1.5rem; text-align: center">
+          <p-button (click)="navigateToGarage()" icon="garage" style="width: 100%">
+            View My Garage
+          </p-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garage Statistics Section -->
+    @if (garageStats.totalCars > 0) {
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem">        <!-- Base Models Breakdown -->
+        <div class="profile-card" style="background: white; border-radius: 8px; padding: 2rem">
+          <p-heading size="medium" style="margin-bottom: 1.5rem; color: #333">
+            Collection by Model
+          </p-heading>
+            @for (baseModel of getObjectKeys(garageStats.baseModelCounts); track baseModel) {
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem">
+              <p-text weight="semi-bold">{{ baseModel }}</p-text>
+              <p-tag color="background-surface" [compact]="true">
+                {{ garageStats.baseModelCounts[baseModel] }} car{{ garageStats.baseModelCounts[baseModel] > 1 ? 's' : '' }}
+              </p-tag>
+            </div>
+          }
+        </div>        <!-- Condition Breakdown -->
+        <div class="profile-card" style="background: white; border-radius: 8px; padding: 2rem">
+          <p-heading size="medium" style="margin-bottom: 1.5rem; color: #333">
+            Condition Overview
+          </p-heading>
+            @for (condition of getObjectKeys(garageStats.conditionCounts); track condition) {
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem">
+              <p-text weight="semi-bold">{{ getFormattedCondition(condition) }}</p-text>
+              <p-tag color="background-surface" [compact]="true">
+                {{ garageStats.conditionCounts[condition] }} car{{ garageStats.conditionCounts[condition] > 1 ? 's' : '' }}
+              </p-tag>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Additional Stats -->
+      @if (garageStats.yearRange) {        <div class="profile-card" style="background: white; border-radius: 8px; padding: 2rem; margin-top: 2rem">
+          <p-heading size="medium" style="margin-bottom: 1.5rem; color: #333">
+            Collection Details
+          </p-heading>
+          
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem">
+            <div style="text-align: center">
+              <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+                Year Range
+              </p-text>
+              <p-text weight="semi-bold" size="medium">
+                {{ garageStats.yearRange.earliest }} - {{ garageStats.yearRange.latest }}
+              </p-text>
+            </div>
+            
+            <div style="text-align: center">
+              <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+                Total Mileage
+              </p-text>
+              <p-text weight="semi-bold" size="medium">
+                {{ garageStats.totalMileage | number }} miles
+              </p-text>
+            </div>
+            
+            <div style="text-align: center">
+              <p-text size="small" style="color: #666; display: block; margin-bottom: 4px">
+                Collection Value
+              </p-text>
+              <p-text weight="semi-bold" size="medium" style="color: #007b3a">
+                Priceless
+              </p-text>
+            </div>
+          </div>
+        </div>
+      }
+    } @else {      <!-- Empty Garage State -->
+      <div class="profile-card" style="text-align: center; padding: 3rem; background: white; border-radius: 8px">
+        <p-icon name="garage" size="x-large" style="margin-bottom: 1.5rem; opacity: 0.5"></p-icon>
+        <p-heading size="large" style="margin-bottom: 1rem; color: #666">
+          Your garage is empty
+        </p-heading>
+        <p-text size="medium" style="color: #888; margin-bottom: 2rem">
+          Start building your Porsche collection by adding your first car.
+        </p-text>
+        <p-button (click)="navigateToGarage()" icon="plus" theme="light">
+          Add Your First Car
+        </p-button>
+      </div>
+    }
+  }
+</div>

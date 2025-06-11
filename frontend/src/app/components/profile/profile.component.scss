@@ -1,0 +1,29 @@
+@use '@porsche-design-system/components-angular/styles' as *;
+
+:host {
+  min-height: 100vh;
+}
+
+.profile-content {
+  background-color: #f8f9fa;
+}
+
+.profile-card {
+  @include pds-drop-shadow-low;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    @include pds-drop-shadow-medium;
+  }
+}
+
+// Stats cards styling
+div[style*="background: #f8f9fa"] {
+  border: 1px solid #e9ecef;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #e9ecef !important;
+  }
+}

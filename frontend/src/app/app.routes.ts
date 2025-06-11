@@ -3,11 +3,13 @@ import { ModelsComponent } from './components/models/models.component';
 import { GarageComponent } from './components/garage/garage.component';
 import { HomeComponent } from './components/home/home.component';
 import { SubmodelsComponent } from './components/submodels/submodels.component';
+import { ProfileComponent } from './components/profile/profile.component';
 
 export const routes: Routes = [
     { path: '', component: HomeComponent },
     { path: 'models', component: ModelsComponent },
     { path: 'garage', component: GarageComponent },
     { path: 'submodels/:base', component: SubmodelsComponent },
+    { path: 'profile', component: ProfileComponent },
     //{ path: 'garage', loadComponent: () => import('./components/garage/garage.component').then(m => m.GarageComponent) },
 ];

@@ -25,9 +25,12 @@ export class AuthService {
   signup(userData: SignupData): Observable<any> {
     return this.http.post(`${this.apiUrl}/signup`, userData);
   }
-
   getUserBasicData(email: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/user`, { email });
+  }
+
+  getUserComprehensiveData(email: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user/comprehensive`, { email });
   }
 
   setCurrentUser(user: any) {

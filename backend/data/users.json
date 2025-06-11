@@ -60,5 +60,14 @@
         "addedAt": "2025-06-10T22:45:34.152Z"
       }
     ]
+  },
+  {
+    "id": 2,
+    "email": "naier@mail.fr",
+    "password": "000000",
+    "firstName": "Naier",
+    "lastName": "Abassi",
+    "createdAt": "2025-06-11T15:20:11.924Z",
+    "garage": []
   }
 ]

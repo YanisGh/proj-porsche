@@ -623,11 +623,109 @@ app.post('/user', (req, res) => {
         lastName,
         createdAt
       }
+    });  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Sorry, we could not retrieve user data. Please try again later.'
+    });
+  }
+});
+
+// Route to retrieve comprehensive user data including garage statistics
+app.post('/user/comprehensive', (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required.'
+      });
+    }
+    const usersFilePath = path.join(__dirname, 'data', 'users.json');
+    let users = [];
+    try {
+      const usersData = fs.readFileSync(usersFilePath, 'utf8');
+      users = JSON.parse(usersData);
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: 'Sorry, we could not access user data. Please try again later.'
+      });
+    }
+    const user = users.find(user => user.email.toLowerCase() === email.toLowerCase());
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found.'
+      });
+    }
+    
+    // Calculate garage statistics
+    const garage = user.garage || [];
+    const garageCount = garage.length;
+    
+    // Calculate car statistics
+    const baseModelCounts = {};
+    const conditionCounts = {};
+    const yearRange = { earliest: null, latest: null };
+    let totalMileage = 0;
+    let averageMileage = 0;
+    
+    if (garage.length > 0) {
+      garage.forEach(car => {
+        // Count base models
+        baseModelCounts[car.baseModel] = (baseModelCounts[car.baseModel] || 0) + 1;
+        
+        // Count conditions
+        conditionCounts[car.condition] = (conditionCounts[car.condition] || 0) + 1;
+        
+        // Track year range
+        const year = parseInt(car.year);
+        if (!yearRange.earliest || year < yearRange.earliest) {
+          yearRange.earliest = year;
+        }
+        if (!yearRange.latest || year > yearRange.latest) {
+          yearRange.latest = year;
+        }
+        
+        // Calculate mileage
+        totalMileage += parseInt(car.mileage) || 0;
+      });
+      
+      averageMileage = Math.round(totalMileage / garage.length);
+    }
+    
+    // Find most common base model
+    const mostCommonBaseModel = Object.entries(baseModelCounts)
+      .sort((a, b) => b[1] - a[1])[0];
+    
+    const { firstName, lastName, createdAt } = user;
+    res.json({
+      success: true,
+      user: {
+        email: user.email,
+        firstName,
+        lastName,
+        createdAt,
+        memberSince: new Date(createdAt).getFullYear()
+      },
+      garageStats: {
+        totalCars: garageCount,
+        baseModelCounts,
+        conditionCounts,
+        yearRange: garageCount > 0 ? yearRange : null,
+        totalMileage,
+        averageMileage: garageCount > 0 ? averageMileage : 0,
+        mostCommonBaseModel: mostCommonBaseModel ? {
+          model: mostCommonBaseModel[0],
+          count: mostCommonBaseModel[1]
+        } : null
+      }
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Sorry, we could not retrieve user data. Please try again later.'
+      message: 'Sorry, we could not retrieve comprehensive user data. Please try again later.'
     });
   }
 });
